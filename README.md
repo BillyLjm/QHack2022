@@ -12,7 +12,7 @@ __Date:__ February 2022
 ## Score  
 Here is a screenshot of my completed hackathon scoreboard entry.  
 I ranked 47<sup>th</sup> in terms of cumulative completion time for the problem sets.  
-![Scoreboard](qhack2022_score.jpg)  
+![Scoreboard](qhack2022_score.png)  
 I couldn't figure out `games_500_switches` using just a single shot, and so didn't get those points.  
 Instead, my circuit has to be repeated until the ancilla qubit measures as a `1`, which has a 50% chance of occurring.  
   
