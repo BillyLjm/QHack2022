@@ -17,9 +17,16 @@ def binary_list(m, n):
     """
 
     arr = []
-    # QHACK #
 
     # QHACK #
+
+    arr = [0] * n
+    binn = bin(m)[2:]
+    for i in range(len(binn)):
+        arr[-i-1] = int(binn[-i-1])
+
+    # QHACK #
+
     return arr
 
 
@@ -37,6 +44,9 @@ def basis_states(n):
     arr = []
 
     # QHACK #
+
+    for m in range(2**n):
+        arr.append(binary_list(m,n))
 
     # QHACK #
 
@@ -56,6 +66,20 @@ def is_particle_preserving(circuit, n):
     """
 
     # QHACK #
+
+    # Try every initial state
+    for init_state in basis_states(n):
+        final_state = circuit(init_state)
+        # Check each non-zero output state
+        for i in range(len(final_state)):
+            if final_state[i] == 0:
+                pass
+            # Compare Hamming weight of in/output state
+            elif np.sum(init_state) != np.sum(binary_list(i,n)):
+                return False
+
+    # If all initial state preserves, return True
+    return True 
 
     # QHACK #
 

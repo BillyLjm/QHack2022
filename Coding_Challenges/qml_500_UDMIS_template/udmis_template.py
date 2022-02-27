@@ -24,6 +24,27 @@ def hamiltonian_coeffs_and_obs(graph):
     # QHACK #
 
     # create the Hamiltonian coeffs and obs variables here
+    obs, coeffs = [], []
+
+    ## one-body term
+    for i in range(num_vertices):
+        obs.append(qml.PauliZ(i))
+        coeffs.append(-0.5)
+        obs.append(qml.Identity(i))
+        coeffs.append(-0.5)
+
+    ## two-body term
+    for i in range(num_vertices):
+        for j in range(i+1, num_vertices):
+            if E[i,j] == True:
+                obs.append(qml.PauliZ(i) @ qml.PauliZ(j))
+                coeffs.append(u/4)
+                obs.append(qml.PauliZ(i))
+                coeffs.append(u/4)
+                obs.append(qml.PauliZ(j))
+                coeffs.append(u/4)
+                obs.append(qml.Identity(0))
+                coeffs.append(u/4)
 
     # QHACK #
 
@@ -67,6 +88,12 @@ def variational_circuit(params, num_vertices):
     # QHACK #
 
     # create your variational circuit here
+    for i in range(len(params)):
+        for j in range(num_vertices):
+            qml.Rot(*params[i][j], wires=j)
+        for j in range(num_vertices - 1):
+            qml.CNOT(wires=(j, j+1))
+        qml.CNOT(wires=(num_vertices-1, 0))
 
     # QHACK #
 
@@ -96,7 +123,10 @@ def train_circuit(num_vertices, H):
     # change the number of training iterations, `epochs`, if you want to
     # just be aware of the 80s time limit!
 
-    epochs = 500
+    epochs = 500 # number of training iterations
+    num_layers = 2 # number of layers is variational quantum circuit
+    params = np.ones([num_layers, num_vertices, 3]) # initial guess
+    opt = qml.NesterovMomentumOptimizer() # optimiser
 
     # QHACK #
 

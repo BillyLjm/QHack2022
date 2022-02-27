@@ -29,6 +29,22 @@ def n_swaps(cnot):
     """
 
     # QHACK #
+    # initialisation
+    start, end = cnot.wires
+    nswaps = 0 # number of swaps
+    qubits = set(graph[start]) # number of qubits reachable with nswaps
+
+    # breadth-first search
+    while len(qubits) != 0:
+        if end in qubits: # if qubit reached, return nswaps
+            return nswaps
+        else: # else, add another swap & see which qubits you reach
+            for qubit in qubits.copy():
+                qubits.update(graph[qubit])
+            nswaps += 2 # swap back and forth
+
+    # if impossible to link
+    return None
 
     # QHACK #
 

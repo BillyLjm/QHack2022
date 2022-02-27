@@ -66,21 +66,61 @@ def classify_ising_data(ising_configs, labels):
 
     # Define a variational circuit below with your needed arguments and return something meaningful
     @qml.qnode(dev)
-    def circuit(# delete this comment and put arguments here):
+    def circuit(params, ising_config):
+        """ Variational quantum circuit """
+        # data encoding
+        qml.BasisState(ising_config, wires=range(num_wires))
+
+        # variational quantum circuit
+        for i in range(len(params)):
+            for j in range(num_wires):
+                qml.Rot(*params[i][j], wires=j)
+            for j in range(num_wires - 1):
+                qml.CNOT(wires=(j, j+1))
+            qml.CNOT(wires=(num_wires-1, 0))
+
+        # Return NN parity of entire spin chain
+        # parity = [qml.PauliZ(i) for i in range(num_wires)]
+        # parity = qml.operation.Tensor(*parity)
+        # return qml.expval(parity)
+
+        # return [qml.expval(qml.PauliZ(i) @ qml.PauliZ(i+1)) for i in range(num_wires-1)]
+        return [qml.expval(qml.PauliZ(i)) for i in range(num_wires)]
+
+    def variational_classifier(params, bias, ising_config):
+        """ Decodes the quantum circuit output into a classification """
+        magnetisation = np.sum(circuit(params, ising_config))
+        return magnetisation + bias
 
     # Define a cost function below with your needed arguments
-    def cost(# delete this comment and put arguments here):
+    def cost(params, bias, X, Y):
 
         # QHACK #
         
         # Insert an expression for your model predictions here
-        predictions = 
+        predictions = [variational_classifier(params, bias, x) for x in X]
 
         # QHACK #
 
         return square_loss(Y, predictions) # DO NOT MODIFY this line
 
     # optimize your circuit here
+    opt = qml.NesterovMomentumOptimizer()
+    batch_size = 5 # number of ising_configs to train on in each iter
+    num_layers = 3 # number of mixing layers in variational quantum circuit
+    params = np.ones([num_layers, num_wires, 3]) # initial guess
+    bias = np.array(0.0) # initial guess
+    for i in range(100): # iteratively optimise
+        batch_index = np.random.randint(0, len(labels), (batch_size,))
+        X = ising_configs[batch_index]
+        Y = labels[batch_index]
+        params, bias, _, _ = opt.step(cost, params, bias, X, Y)
+    
+    # make predictions w/ optimised circuit
+    predictions = []
+    for ising_config in ising_configs:
+        predict = variational_classifier(params, bias, ising_config)
+        predictions.append(int(np.sign(predict)))
 
     # QHACK #
 

@@ -29,6 +29,23 @@ def qRAM(thetas):
         # QHACK #
 
         # Create your circuit: the first three qubits will refer to the index, the fourth to the RY rotation.
+        ## Create superposition of address qubits
+        for i in range(3):
+            qml.Hadamard(wires=i)
+
+        ## Load thetas based on address
+        for i in range(len(thetas)):
+            binn = format(i, '03b')
+            # rotate address qubits to 1
+            for j in range(len(binn)):
+                if binn[j] == '0':
+                    qml.PauliX(wires=j)
+            # controlled RY
+            qml.ctrl(qml.RY, control=range(3))(thetas[i], wires=3)
+            # uncompute address qubits
+            for j in range(len(binn)):
+                if binn[j] == '0':
+                    qml.PauliX(wires=j)
 
         # QHACK #
 

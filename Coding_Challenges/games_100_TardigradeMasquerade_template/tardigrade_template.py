@@ -27,6 +27,31 @@ def compute_entanglement(theta):
 
     # QHACK #
 
+    @qml.qnode(dev)
+    def circuit_without_tardigrade():
+        """ Circuit without Tardigrade
+        Prepares |010> + |100>
+        """
+        qml.Hadamard(wires=0)
+        qml.PauliX(wires=1)
+        qml.CNOT(wires=(0, 1))
+        return qml.density_matrix(wires=1)
+
+    @qml.qnode(dev)
+    def circuit_with_tardigrade(theta):
+        """ Circuit with Tardigrade 
+        Prepares cos(theta/2) |010> + sin(theta/2) |001> + |100>
+        """
+        qml.Hadamard(wires=0)
+        qml.CRY(np.pi + theta, wires=(0, 1))
+        qml.CNOT(wires=(0,2))
+        qml.CNOT(wires=(1,2))
+        qml.PauliX(wires=0)
+        return qml.density_matrix(wires=1)
+
+    return (second_renyi_entropy(circuit_without_tardigrade()),
+        second_renyi_entropy(circuit_with_tardigrade(theta)))
+
     # QHACK #
 
 

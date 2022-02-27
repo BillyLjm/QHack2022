@@ -23,12 +23,28 @@ def find_the_car(oracle):
     def circuit1():
         # QHACK #
 
+        # Check if car is behind |00> or |01>
+        # |000> if not behind, |010> if behind
+        qml.Hadamard(wires=0)
+        oracle()
+        qml.PauliZ(wires="sol")
+        oracle()
+        qml.Hadamard(wires=0)
+
         # QHACK #
         return qml.sample()
 
     @qml.qnode(dev)
     def circuit2():
         # QHACK #
+
+        # Check if car is behind |00> or |10>
+        # |000> if not behind, |100> if behind
+        qml.Hadamard(wires=1)
+        oracle()
+        qml.PauliZ(wires="sol")
+        oracle()
+        qml.Hadamard(wires=1)
 
         # QHACK #
         return qml.sample()
@@ -39,6 +55,16 @@ def find_the_car(oracle):
     # QHACK #
 
     # process sol1 and sol2 to determine which door the car is behind.
+    bool1 = np.all(sol1 == [0,0,0])
+    bool2 = np.all(sol2 == [0,0,0])
+    if bool1 and bool2:
+        return 3
+    elif bool2:
+        return 2
+    elif bool1:
+        return 1
+    else:
+        return 0
 
     # QHACK #
 

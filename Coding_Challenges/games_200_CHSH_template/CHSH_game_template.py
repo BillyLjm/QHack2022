@@ -19,6 +19,9 @@ def prepare_entangled(alpha, beta):
 
     # QHACK #
 
+    qml.RY(2 * np.arctan(beta/alpha), wires=0)
+    qml.CNOT(wires=(0,1))
+
     # QHACK #
 
 @qml.qnode(dev)
@@ -43,6 +46,18 @@ def chsh_circuit(theta_A0, theta_A1, theta_B0, theta_B1, x, y, alpha, beta):
 
     # QHACK #
 
+    # Alice
+    if x == 0:
+        qml.RY(2 * theta_A0, wires=0).inv()
+    else:
+        qml.RY(2 * theta_A1, wires=0).inv()
+
+    # Bob
+    if y == 0:
+        qml.RY(2 * theta_B0, wires=1).inv()
+    else:
+        qml.RY(2 * theta_B1, wires=1).inv()
+
     # QHACK #
 
     return qml.probs(wires=[0, 1])
@@ -62,6 +77,22 @@ def winning_prob(params, alpha, beta):
 
     # QHACK #
 
+    win = 0 # probability of wining
+
+    prob = chsh_circuit(*params, 0, 0, alpha, beta)
+    win += prob[0] + prob[3]
+
+    prob = chsh_circuit(*params, 0, 1, alpha, beta)
+    win += prob[0] + prob[3]
+
+    prob = chsh_circuit(*params, 1, 0, alpha, beta)
+    win += prob[0] + prob[3]
+
+    prob = chsh_circuit(*params, 1, 1, alpha, beta)
+    win += prob[1] + prob[2]
+
+    return win/4 # equal probability of all 4 x,y
+
     # QHACK #
     
 
@@ -78,13 +109,14 @@ def optimize(alpha, beta):
 
     def cost(params):
         """Define a cost function that only depends on params, given alpha and beta fixed"""
+        return -winning_prob(params, alpha, beta)
 
     # QHACK #
 
     #Initialize parameters, choose an optimization method and number of steps
-    init_params = 
-    opt =
-    steps =
+    init_params = np.ones(4)
+    opt = qml.AdagradOptimizer()
+    steps = 2000
 
     # QHACK #
     
@@ -95,7 +127,7 @@ def optimize(alpha, beta):
         # update the circuit parameters 
         # QHACK #
 
-        params = 
+        params = opt.step(cost, params)
 
         # QHACK #
 

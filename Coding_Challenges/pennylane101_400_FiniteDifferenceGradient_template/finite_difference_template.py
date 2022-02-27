@@ -18,11 +18,9 @@ def my_finite_diff_grad(params):
         - gradients (np.ndarray): the gradient w.r.t. each parameter
     """
 
-    gradients = np.zeros([len(params)])
-    for i in range(len(params)):
-        # QHACK # 
-
-        # QHACK #
+    # QHACK #
+    gradients = qml.finite_diff(cost)(params)
+    # QHACK #
 
     return gradients
 

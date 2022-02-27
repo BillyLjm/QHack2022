@@ -18,6 +18,37 @@ def deutsch_jozsa(fs):
 
     # QHACK #
 
+    dev = qml.device("default.qubit", wires=5, shots=1)
+
+    @qml.qnode(dev)
+    def circuit():
+        """Implements the modified Deutsch Jozsa algorithm
+        Checks if fs[1] is of similar type to fs[2] and fs[3]
+        by applying each pair of oracles together
+        """
+
+        # Insert any pre-oracle processing here
+        qml.PauliX(4)
+        for i in range(5):
+            qml.Hadamard(i)
+
+        # Apply oracle pairs
+        fs[1](wires=(0,1,4)) # 1st pair
+        fs[2](wires=(0,1,4))
+        fs[1](wires=(2,3,4)) # 2nd pair
+        fs[3](wires=(2,3,4))
+
+        # Insert any post-oracle processing here
+        for i in range(4):
+            qml.Hadamard(i)
+        return qml.sample(wires=range(4))
+
+    sample = circuit()
+    if np.any(sample): # if any non-zeros
+        return "2 and 2"
+    else:
+        return "4 same"
+
     # QHACK #
 
 

@@ -9,7 +9,7 @@ def error_wire(circuit_output):
     """Function that returns an error readout.
 
     Args:
-        - circuit_output (?): the output of the `circuit` function.
+        - circuit_output (np.ndarray): the density matrix of the `circuit` function.
 
     Returns:
         - (np.ndarray): a length-4 array that reveals the statistics of the
@@ -24,6 +24,17 @@ def error_wire(circuit_output):
     # QHACK #
 
     # process the circuit output here and return which qubit was the victim of a bitflip error!
+    # extract probabilities from density matrix
+    error_readout = np.zeros(4)
+    for i in range(len(error_readout)):
+        error_readout[i] = np.abs(circuit_output[i,i]) + np.abs(circuit_output[-i-1,-i-1])
+
+    # swap to follow pennylane's ordering
+    tmp = error_readout[3]
+    error_readout[3] = error_readout[1]
+    error_readout[1] = tmp
+
+    return error_readout
 
     # QHACK #
 
@@ -51,12 +62,17 @@ def circuit(p, alpha, tampered_wire):
     # QHACK #
 
     # put any input processing gates here
+    qml.CNOT(wires=(0,1))
+    qml.CNOT(wires=(0,2))
 
     qml.BitFlip(p, wires=int(tampered_wire))
 
     # put any gates here after the bitflip error has occurred
+    ### No gates after bitflip
 
     # return something!
+    return qml.density_matrix((0,1,2))
+
     # QHACK #
 
 

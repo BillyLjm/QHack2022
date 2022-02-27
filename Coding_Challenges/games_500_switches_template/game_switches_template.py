@@ -24,18 +24,34 @@ def switch(oracle):
 
         # QHACK #
 
+        # initialise superposition of states
+        for i in range(3):
+            qml.Hadamard(wires=i)
+
         # You are allowed to place operations before and after the oracle without any problem.
         oracle()
 
+        # interfere output into |0000> + |1101>, where (1) switches work
+        for i in range(3):
+            qml.Hadamard(wires=i)
+        qml.Hadamard(wires="light")
+
         # QHACK #
+        return qml.sample(wires=[0, 1, 2, "light"])
 
-        return qml.sample(wires=range(3))
-
+    # repeat circuit until ancilla "light" is 1
     sample = circuit()
+    while sample[-1] == 0:
+        sample = circuit()
 
     # QHACK #
 
     # Process the received sample and return the requested list.
+    switches = []
+    for i in range(3):
+        if sample[i] == 1:
+            switches.append(i)
+    return switches
 
     # QHACK #
 
