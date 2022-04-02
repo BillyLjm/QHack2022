@@ -16,6 +16,9 @@ I ranked 47<sup>th</sup> in terms of cumulative completion time for the problem 
 I couldn't figure out `games_500_switches` using just a single shot, and so didn't get those points.  
 Instead, my circuit has to be repeated until the ancilla qubit measures as a `1`, which has a 50% chance of occurring.  
   
+And here is my certificate for completing all but one of the problem sets.  
+![Certificate](qhack2022_certificate.png)  
+  
 ## Files  
 The `Coding_Challenges` folder contains all the problem statements and solutions.  
 There is a `requirements.txt` to install the necessary python packages.  
